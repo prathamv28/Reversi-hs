@@ -1,6 +1,7 @@
 module Main where
 
-import Lib
+import Board
+import Interpreter
 
 main :: IO ()
-main = someFunc
+main = initGame
