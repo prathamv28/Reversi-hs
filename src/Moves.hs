@@ -12,7 +12,7 @@ tryMove :: BoardMap -> Move -> Maybe BoardMap
 tryMove bm move =
   do newbm <- flipCoins bm move 1
      if newbm == bm then Nothing
-     else return (putCoin newbm move)
+     else putCoin newbm move
 
 -- returns Nothing when move is invalid
 -- otherwise returns new board
@@ -53,5 +53,6 @@ getNextCellInDir (x,y) dir = case dir of
   8         -> (x-1, y-1)
   otherwise -> error ("Invalid Direction Access")
 
-putCoin :: BoardMap -> Move -> BoardMap
-putCoin bm (cell, coin) = M.insert cell coin bm
+putCoin :: BoardMap -> Move -> Maybe BoardMap
+putCoin bm (cell, coin) | member cell bm = Nothing
+                        | otherwise      = Just (M.insert cell coin bm)

@@ -19,32 +19,9 @@ initBoard = M.fromList [
   ((4,5), BLACK),
   ((5,4), BLACK)]
 
-showBoard :: BoardMap -> IO ()
-showBoard bm = do
-  putStr "\n"
-  sequence $ replicate 8 (putStr "+-------")
-  putStr "+\n"
-  sequence [printRow bm row | row <- [1..8]]
-  putStr "\n"
-
 onBoard :: Cell -> Bool
 onBoard (x, y) | x>=1 && x<=8 && y>=1 && y<=8 = True
                  | otherwise                  = False
-
-
-printRow :: BoardMap -> Int -> IO()
-printRow bm n = do
-  sequence $ replicate 8 (putStr "|       ")
-  putStr "|\n"
-  sequence [if (M.member cell bm)
-            then putStr ("|   " ++ show (bm M.! cell) ++ "   ")
-            else putStr ("| " ++ (show cell) ++ " ")
-           | cell <- map ((,) n) [1..8]]
-  putStr "|\n"
-  sequence $ replicate 8 (putStr "|       ")
-  putStr "|\n"
-  sequence $ replicate 8 (putStr "+-------")
-  putStr "+\n"
 
 
 notCoin :: Coin -> Coin
