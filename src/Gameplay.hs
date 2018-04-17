@@ -1,7 +1,8 @@
 module Gameplay
 (
   playTwoPlayer,
-  playWithAI
+  playWithAI,
+  playAIvsAI
 ) where
 
 import qualified Data.Map as M
@@ -17,6 +18,20 @@ playTwoPlayer coin = eUserTurn 0 initBoard coin ""
 
 playWithAI :: AILevel -> Coin -> IO Move
 playWithAI lev coin = eUserTurn lev initBoard coin ""
+
+playAIvsAI :: AILevel -> IO Move   -- For testing purpose
+playAIvsAI level = playAIvsAI' level initBoard WHITE
+
+playAIvsAI' :: AILevel -> BoardMap -> Coin -> IO Move 
+playAIvsAI' 0 _ _ = error ("AI Level 0 is Invalid")
+playAIvsAI' lev bm coin
+  | isGameOver bm coin =
+    do showResult bm
+       return ((0,0), WHITE) -- Dummy return
+  | otherwise          =
+      do
+        (newbm, cell) <- selectAIMove lev bm coin
+        playAIvsAI' lev newbm (notCoin coin)
 
 -- execute User Turn
 eUserTurn :: AILevel -> BoardMap -> Coin -> String -> IO Move

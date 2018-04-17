@@ -4,10 +4,28 @@ import qualified Data.Map as M
 import Board
 import Moves
 import Utils
+import AI
 
-initGame :: IO()
-initGame = do
-  putStrLn "Welcome to Reversi!!"
+data Gameplay = VsCPU | VsPlayer
+
+levelOpts :: [(String, AILevel)]
+levelOpts = [
+                 ("EASY", 6),
+                 ("MEDIUM", 3),
+                 ("HARD", 1)
+            ]
+
+gameplayOpts :: [(String, Gameplay)]
+gameplayOpts = [
+                 ("2 player", VsPlayer),
+                 ("Vs Computer", VsCPU)
+               ]
+
+coinOpts :: [(String, Coin)]
+coinOpts = [
+                 ("Black (" ++ show BLACK ++ ")", BLACK),
+                 ("White (" ++ show WHITE ++ ")", WHITE)
+           ]
 
 movePrompt :: BoardMap -> Coin -> String -> IO Move
 movePrompt bm coin msg =
@@ -15,9 +33,8 @@ movePrompt bm coin msg =
      showScore bm
      putStrLn ("--> " ++ msg)
      putStrLn ("--> " ++ (show coin) ++ "\'s Turn: ")
-     putStr "Row Column : "
+     putStrLn "Row Column : "
      line <- getLine
-     putStr "\n"
      let inputs = words line
      let row = checkInt (inputs !! 0)
      let col = checkInt (inputs !! 1)
@@ -35,7 +52,24 @@ showResult bm =
              black = snd score
              in if white == black
                 then putStrLn "--> It's a Tie !"
-                else if black > white then putStrLn "--> BLACK WINS !" else putStrLn "--> WHITE WINS !"
+                else if black > white
+                     then putStrLn "--> BLACK WINS !"
+                     else putStrLn "--> WHITE WINS !"
+
+promptOptions :: String -> [(String, a)] -> String -> IO a
+promptOptions ques list msg = do putStrLn (if msg == "" then "" else "--> "++msg)
+                                 sequence [putStrLn ("["++ show i ++"] " ++ str) |
+                                      (i, (str, _)) <- zip [1..(length list)] list]
+                                 putStrLn ("Select " ++ ques ++ ": ")
+                                 input <- getLine
+                                 putStr "\n"
+                                 let sel = checkInt input
+                                 case sel of
+                                   Just n  -> if n>0 && n<=length list
+                                              then return . snd $ (list !! (n-1))
+                                              else promptOptions ques list "Invalid Option !!"
+                                   _       -> promptOptions ques list "Invalid Input Format !!"
+
 
 showScore :: BoardMap -> IO()
 showScore bm = let score = getScores bm in

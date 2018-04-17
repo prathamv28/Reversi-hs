@@ -26,9 +26,7 @@ isGameOver bm turn
   | length validMoves == 0 = True  -- No moves left for this turn
   | otherwise              = False
     where
-      validMoves = [ move
-                   | Just move <- [tryMove bm ((x,y), turn)
-                   | x <- [1..8], y <- [1..8], M.notMember (x,y) bm]]
+      validMoves = getValidMoves bm turn
 
 
 getValidMoves :: BoardMap -> Coin -> [Attempt]
@@ -54,6 +52,7 @@ checkInt str = case reads str of
 
 -- Need to make sure list isn't empty
 safeIndexValue :: [a] -> Int -> a
-safeIndexValue list index = if index > length list
+safeIndexValue [] _ = error ("Cannot Access SafeIndex")
+safeIndexValue list index = if index >= length list
                             then head . reverse $ list
                             else list !! index
