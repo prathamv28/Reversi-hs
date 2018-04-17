@@ -1,4 +1,8 @@
-module Moves where
+module Moves
+  (
+    Move,
+    tryMove
+  ) where
 
 import Data.Map as M
 import Board
@@ -8,6 +12,8 @@ type Direction = Int
 -- 1:Up  , 2:Up-right , 3:Right, 4:Right-down,
 -- 5:Down, 6:Down-Left, 7: Left, 8:Left-Up
 
+-- Tries a move
+-- Returns new Board if move is valid, else Nothing
 tryMove :: BoardMap -> Move -> Maybe BoardMap
 tryMove bm move =
   do newbm <- flipCoins bm move 1
