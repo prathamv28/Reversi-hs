@@ -17,11 +17,15 @@ type AILevel = Int
 
 -- returns AI's Move
 getAIMove :: AILevel -> BoardMap -> Coin -> Attempt
-getAIMove lev bm coin = fst (maximumBy ordfunc moveValueZip)
+getAIMove lev bm coin
+  | validMoves /= [] = fst (maximumBy ordfunc moveValueZip)
+  | otherwise        = error ("No Valid Moves for AI")
   where
     validMoves   = getValidMoves bm coin
     moveValueZip = [(mv, getBestValue (fst mv) (lev-1) coin) | mv <- validMoves]
-    ordfunc      = \(_, v1) (_, v2) -> compare v1 v2
+    ordfunc      = \(_, v1) (_, v2) -> if coin == WHITE
+                                       then compare v1 v2
+                                       else compare v2 v1
 
 
 -- Gives best BValue after a move

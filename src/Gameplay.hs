@@ -19,17 +19,23 @@ playTwoPlayer coin = eUserTurn 0 initBoard coin ""
 playWithAI :: AILevel -> Coin -> IO Move
 playWithAI lev coin = eUserTurn lev initBoard coin ""
 
-playAIvsAI :: AILevel -> IO Move   -- For testing purpose
-playAIvsAI level = playAIvsAI' level initBoard WHITE
+playAIvsAI :: AILevel -> AILevel -> IO Move   -- For testing purpose
+playAIvsAI l1 l2 = playAIvsAI' [l1, l2] 0 initBoard WHITE
 
-playAIvsAI' :: AILevel -> BoardMap -> Coin -> IO Move
-playAIvsAI' 0 _ _ = error ("AI Level 0 is Invalid")
-playAIvsAI' lev bm coin
+playAIvsAI' :: [AILevel] -> Int -> BoardMap -> Coin -> IO Move
+playAIvsAI' ls sel bm coin
   | isGameOver bm coin =
-    do showResult bm
+    do showBoard bm
+       showResult bm
        return ((0,0), WHITE) -- Dummy return
-  | otherwise          = let (newbm, cell) = getAIMove lev bm coin
-                         in playAIvsAI' lev newbm (notCoin coin)
+  | otherwise          =
+    do showBoard bm
+       showScore bm
+       putStrLn ("AI " ++ show index ++ " Taking its turn ...")
+       let (newbm, _) = getAIMove lev bm coin
+       playAIvsAI' ls (1-sel) newbm (notCoin coin)
+  where index = sel+1
+        lev = ls !! sel
 
 -- execute User Turn
 eUserTurn :: AILevel -> BoardMap -> Coin -> String -> IO Move
