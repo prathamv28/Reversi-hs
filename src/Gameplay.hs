@@ -19,8 +19,8 @@ playTwoPlayer coin = eUserTurn 0 initBoard coin ""
 playWithAI :: AILevel -> Coin -> IO Move
 playWithAI lev coin = eUserTurn lev initBoard coin ""
 
-playAIvsAI :: AILevel -> AILevel -> IO Move   -- For testing purpose
-playAIvsAI l1 l2 = playAIvsAI' [l1, l2] 0 initBoard WHITE
+playAIvsAI :: AILevel -> AILevel -> Coin -> IO Move   -- For testing purpose
+playAIvsAI l1 l2 first = playAIvsAI' [l1, l2] 0 initBoard first
 
 playAIvsAI' :: [AILevel] -> Int -> BoardMap -> Coin -> IO Move
 playAIvsAI' ls sel bm coin
@@ -60,6 +60,8 @@ eAITurn lev bm coin
     do showResult bm
        return ((0,0), WHITE) -- Dummy return
   | otherwise          =
-    do putStrLn "Computer's Move ... "
+    do showBoard bm
+       showScore bm
+       putStrLn "Computer's Move ... "
        let (newbm, cell) = getAIMove lev bm coin
          in eUserTurn lev newbm (notCoin coin) ("Computer's Move is " ++ show cell)
