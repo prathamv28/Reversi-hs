@@ -10,15 +10,15 @@ data Gameplay = VsCPU | VsPlayer
 
 levelOpts :: [(String, AILevel)]
 levelOpts = [
-                 ("EASY", 6),
+                 ("EASY", 1),
                  ("MEDIUM", 3),
-                 ("HARD", 1)
+                 ("HARD", 5)
             ]
 
 gameplayOpts :: [(String, Gameplay)]
 gameplayOpts = [
-                 ("2 player", VsPlayer),
-                 ("Vs Computer", VsCPU)
+                 ("1 Player", VsCPU),
+                 ("2 Player", VsPlayer)
                ]
 
 coinOpts :: [(String, Coin)]

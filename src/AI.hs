@@ -1,29 +1,38 @@
 module AI
 (
-  getAIMoves,
+  getAIMove,
   AILevel
 ) where
 
 import Data.List
 import Utils
 import Board
+type Depth = Int
 
--- Lower the value of CPULevel, better the game of AI
--- 0 Means Two Player Game
--- Best  = 1
--- Worst = 10
+-- AILevel is the depth upto which AI looks into the game
+-- Best  = 64
+-- Worst = 1
+-- 0 Means not using AI
 type AILevel = Int
 
--- returns moves that AI considers taking level into account
-getAIMoves :: AILevel -> BoardMap -> Coin -> [Attempt]
-getAIMoves lev bm coin = take lev sortedMoves
-  where sortMoves = sortValidMoves bm coin
-        sortedMoves = sortMoves (validCornerMoves bm coin) ++
-                      sortMoves (getValidMoves bm coin)
+-- returns AI's Move
+getAIMove :: AILevel -> BoardMap -> Coin -> Attempt
+getAIMove lev bm coin = fst (maximumBy ordfunc moveValueZip)
+  where
+    validMoves   = getValidMoves bm coin
+    moveValueZip = [(mv, getBestValue (fst mv) (lev-1) coin) | mv <- validMoves]
+    ordfunc      = \(_, v1) (_, v2) -> compare v1 v2
 
--- sorts attempts in descenting order of gain
-sortValidMoves :: BoardMap -> Coin -> [Attempt] -> [Attempt]
-sortValidMoves bm coin attempts = sortBy sortfunc attempts
-  where ord = if coin == WHITE then fst else snd
-        delta newbm = ord (deltaScore bm newbm)
-        sortfunc    = \(bm1, _) (bm2, _) -> compare (delta bm2) (delta bm1)
+
+-- Gives best BValue after a move
+getBestValue :: BoardMap -> Depth -> Coin -> BValue
+getBestValue bm 0 _ = bValue bm
+getBestValue bm depth coin
+  | oppMove == Nothing = bValue bm       -- no moves for opponent
+  | validMoves == []   = bValue newbm    -- no valid moves after Opponent's move
+  | otherwise          = optFun [getBestValue bm' (depth-1) coin | (bm', _) <- validMoves]
+  where
+      oppMove      = getBestMove bm (notCoin coin)
+      newbm        = let Just (nbm,_) = oppMove in nbm
+      validMoves   = getValidMoves newbm coin
+      optFun       = if coin == WHITE then maximum else minimum
